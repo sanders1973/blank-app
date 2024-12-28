@@ -14,44 +14,41 @@ new_item = st.text_input('Add a new to-do item')
 if st.button('Add Main Item'):
     if new_item:
         st.session_state.to_do_list[new_item] = []
-
-
-# Display the to-do list with radio buttons to select an item
-selected_main_item = st.radio('Select a main item to modify or delete:', list(st.session_state.to_do_list.keys()))
-
-if selected_main_item:
-    # Modify main item
-    modified_main_item = st.text_input('Modify selected main item', selected_main_item)
-    if st.button('Update Main Item'):
-        st.session_state.to_do_list[modified_main_item] = st.session_state.to_do_list.pop(selected_main_item)
-
-    
-    # Delete main item and its sub-items
-    if st.button('Delete Main Item'):
-        del st.session_state.to_do_list[selected_main_item]
-
-    
-    # Input text box to add new sub-items
-    new_sub_item = st.text_input('Add a new sub-item for {}'.format(selected_main_item))
-
-    # Add button for sub-items
-    if st.button('Add Sub Item'):
-        if new_sub_item:
-            st.session_state.to_do_list[selected_main_item].append(new_sub_item)
     
 
-    # Display the sub-items for the selected main item
-    selected_sub_item = st.radio('Select a sub-item to modify or delete:', st.session_state.to_do_list[selected_main_item])
-
-    if selected_sub_item:
-        # Modify sub-item
-        modified_sub_item = st.text_input('Modify selected sub-item', selected_sub_item)
-        if st.button('Update Sub Item'):
-            index = st.session_state.to_do_list[selected_main_item].index(selected_sub_item)
-            st.session_state.to_do_list[selected_main_item][index] = modified_sub_item
-    
+def display_items():
+    for main_item, sub_items in st.session_state.to_do_list.items():
+        st.markdown(f"- {main_item}")
         
-        # Delete sub-item
-        if st.button('Delete Sub Item'):
-            st.session_state.to_do_list[selected_main_item].remove(selected_sub_item)
-    
+        if st.button(f'Modify Main Item', key=f'modify_{main_item}'):
+            modified_main_item = st.text_input('Modify main item', main_item, key=f'modify_input_{main_item}')
+            if st.button('Update Main Item', key=f'update_{main_item}'):
+                st.session_state.to_do_list[modified_main_item] = st.session_state.to_do_list.pop(main_item)
+            
+
+        if st.button(f'Delete Main Item', key=f'delete_{main_item}'):
+            del st.session_state.to_do_list[main_item]
+        
+
+        for sub_item in sub_items:
+            st.markdown(f"\t- {sub_item}")
+            
+            if st.button(f'Modify Sub Item', key=f'modify_sub_{sub_item}'):
+                modified_sub_item = st.text_input('Modify sub item', sub_item, key=f'modify_input_sub_{sub_item}')
+                if st.button('Update Sub Item', key=f'update_sub_{sub_item}'):
+                    index = st.session_state.to_do_list[main_item].index(sub_item)
+                    st.session_state.to_do_list[main_item][index] = modified_sub_item
+                
+
+            if st.button(f'Delete Sub Item', key=f'delete_sub_{sub_item}'):
+                st.session_state.to_do_list[main_item].remove(sub_item)
+            
+
+        new_sub_item = st.text_input('Add a new sub-item for {}'.format(main_item), key=f'new_sub_{main_item}')
+        if st.button('Add Sub Item', key=f'add_sub_{main_item}'):
+            if new_sub_item:
+                st.session_state.to_do_list[main_item].append(new_sub_item)
+            
+
+# Display the to-do list with sub-items
+display_items()
