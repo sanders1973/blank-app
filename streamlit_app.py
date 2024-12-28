@@ -14,7 +14,7 @@ new_item = st.text_input('Add a new to-do item')
 if st.button('Add'):
     if new_item:
         st.session_state.to_do_list.append(new_item)
-        st.experimental_rerun()
+       
 
 # Display the to-do list with radio buttons to select an item
 selected_item = st.radio('Select an item to modify or delete:', st.session_state.to_do_list)
@@ -25,10 +25,10 @@ if selected_item:
     if st.button('Update'):
         index = st.session_state.to_do_list.index(selected_item)
         st.session_state.to_do_list[index] = modified_item
-        st.experimental_rerun()
+        
     
     # Delete item
     if st.button('Delete'):
         st.session_state.to_do_list.remove(selected_item)
-        st.experimental_rerun()
+       
 
