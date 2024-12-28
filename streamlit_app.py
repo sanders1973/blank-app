@@ -1,54 +1,42 @@
 import streamlit as st
 
 # Initialize session state
-if 'to_do_list' not in st.session_state:
-    st.session_state.to_do_list = {}
+if 'tasks' not in st.session_state:
+    st.session_state['tasks'] = []
 
-# Title of the app
-st.title('To-Do List with Sub-Items')
+# Function to add a new task
+def add_task():
+    if st.session_state['new_task']:
+        st.session_state['tasks'].append({
+            'task': st.session_state['new_task'],
+            'description': st.session_state['new_description']
+        })
+        st.session_state['new_task'] = ""
+        st.session_state['new_description'] = ""
 
-# Input text box to add new items
-new_item = st.text_input('Add a new to-do item')
+# Function to delete a task
+def delete_task(index):
+    st.session_state['tasks'].pop(index)
 
-# Add button for main items
-if st.button('Add Main Item'):
-    if new_item:
-        st.session_state.to_do_list[new_item] = []
-    
+# Function to update a task
+def update_task(index):
+    st.session_state['tasks'][index]['task'] = st.session_state[f'task_{index}']
+    st.session_state['tasks'][index]['description'] = st.session_state[f'description_{index}']
 
-def display_items():
-    for main_item, sub_items in st.session_state.to_do_list.items():
-        st.markdown(f"- {main_item}")
-        
-        if st.button(f'Modify Main Item', key=f'modify_{main_item}'):
-            modified_main_item = st.text_input('Modify main item', main_item, key=f'modify_input_{main_item}')
-            if st.button('Update Main Item', key=f'update_{main_item}'):
-                st.session_state.to_do_list[modified_main_item] = st.session_state.to_do_list.pop(main_item)
-            
+st.title("To-Do List Application")
 
-        if st.button(f'Delete Main Item', key=f'delete_{main_item}'):
-            del st.session_state.to_do_list[main_item]
-        
+st.text_input("New Task", key='new_task')
+st.text_area("Description", key='new_description')
+st.button("Add Task", on_click=add_task)
 
-        for sub_item in sub_items:
-            st.markdown(f"\t- {sub_item}")
-            
-            if st.button(f'Modify Sub Item', key=f'modify_sub_{sub_item}'):
-                modified_sub_item = st.text_input('Modify sub item', sub_item, key=f'modify_input_sub_{sub_item}')
-                if st.button('Update Sub Item', key=f'update_sub_{sub_item}'):
-                    index = st.session_state.to_do_list[main_item].index(sub_item)
-                    st.session_state.to_do_list[main_item][index] = modified_sub_item
-                
+for i, task in enumerate(st.session_state['tasks']):
+    with st.expander(task['task'], expanded=True):
+        st.text_input("Edit Task", value=task['task'], key=f'task_{i}', on_change=update_task, args=(i,))
+        st.text_area("Edit Description", value=task['description'], key=f'description_{i}', on_change=update_task, args=(i,))
+        st.button("Delete Task", key=f'delete_{i}', on_click=delete_task, args=(i,))
 
-            if st.button(f'Delete Sub Item', key=f'delete_sub_{sub_item}'):
-                st.session_state.to_do_list[main_item].remove(sub_item)
-            
+if st.session_state['tasks']:
+    st.success("Tasks updated successfully!")
 
-        new_sub_item = st.text_input('Add a new sub-item for {}'.format(main_item), key=f'new_sub_{main_item}')
-        if st.button('Add Sub Item', key=f'add_sub_{main_item}'):
-            if new_sub_item:
-                st.session_state.to_do_list[main_item].append(new_sub_item)
-            
+st.caption("© Your To-Do List App")
 
-# Display the to-do list with sub-items
-display_items()
