@@ -31,8 +31,8 @@ st.button("Add Task", on_click=add_task)
 
 for i, task in enumerate(st.session_state['tasks']):
     with st.expander(task['task'], expanded=True):
-        st.text_input("Edit Task", value=task['task'], key=f'task_{i}', on_change=update_task, args=(i,))
-        st.text_area("Edit Description", value=task['description'], key=f'description_{i}', on_change=update_task, args=(i,))
+        st.text_input("", value=task['task'], key=f'task_{i}', on_change=update_task, args=(i,))
+        st.text_area("", value=task['description'], key=f'description_{i}', on_change=update_task, args=(i,))
         st.button("Delete Task", key=f'delete_{i}', on_click=delete_task, args=(i,))
 
 if st.session_state['tasks']:
