@@ -1,33 +1,28 @@
 import streamlit as st
-from streamlit_local_storage import get_local_storage, set_local_storage
 
 # Function to initialize session state for to-do lists
 def init_state():
     if 'todo1' not in st.session_state:
-        st.session_state.todo1 = get_local_storage("todo1", [])
+        st.session_state.todo1 = []
     if 'todo2' not in st.session_state:
-        st.session_state.todo2 = get_local_storage("todo2", [])
+        st.session_state.todo2 = []
     if 'todo3' not in st.session_state:
-        st.session_state.todo3 = get_local_storage("todo3", [])
+        st.session_state.todo3 = []
     if 'todo4' not in st.session_state:
-        st.session_state.todo4 = get_local_storage("todo4", [])
+        st.session_state.todo4 = []
 
 # Function to add a new item
 def add_item(list_name, item, sub_items):
     st.session_state[list_name].append({'item': item, 'sub_items': sub_items})
-    set_local_storage(list_name, st.session_state[list_name])
 
 # Function to delete an item
 def delete_item(list_name, index):
     st.session_state[list_name].pop(index)
-    set_local_storage(list_name, st.session_state[list_name])
 
 # Function to move an item between lists
 def move_item(from_list, to_list, index):
     item = st.session_state[from_list].pop(index)
     st.session_state[to_list].append(item)
-    set_local_storage(from_list, st.session_state[from_list])
-    set_local_storage(to_list, st.session_state[to_list])
 
 # Initialize state
 init_state()
