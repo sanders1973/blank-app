@@ -49,7 +49,7 @@ with st.sidebar.expander("Select a List", expanded=True):
 
 st.sidebar.header(f"To-Do List: {st.session_state.current_list}")
 st.session_state.item = st.sidebar.text_input("Add Item", value=st.session_state.item)
-st.session_state.description = st.sidebar.input("Description", value=st.session_state.description)
+st.session_state.description = st.sidebar.text_input("Description", value=st.session_state.description)
 add_item()
 current_list_df = pd.DataFrame(st.session_state.lists[st.session_state.current_list])
 if not current_list_df.empty:
