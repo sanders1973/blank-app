@@ -1,36 +1,43 @@
 import streamlit as st
+import pandas as pd
 
-# Initialize session state to keep track of to-do list items
-if 'todo_list' not in st.session_state:
-    st.session_state.todo_list = []
+# Initialize session state
+if 'to_do_list' not in st.session_state:
+    st.session_state.to_do_list = []
 
-st.title('To-Do List App')
-
-# Function to add new item
 def add_item():
-    item = st.text_input('Enter a new to-do item:', key='new_item')
-    if st.button('Add Item'):
-        if item:
-            st.session_state.todo_list.append(item)
-           
+    item = st.sidebar.text_input("Add Item")
+    description = st.sidebar.text_area("Description")
+    if st.sidebar.button("Add"):
+        st.session_state.to_do_list.append({"Item": item, "Description": description})
+        st.experimental_rerun()
 
-# Display existing to-do items with radio buttons
-def display_items():
-    for index, item in enumerate(st.session_state.todo_list):
-        st.radio('', [item], key=f'item_{index}')
+def modify_item(idx):
+    item = st.sidebar.text_input("Modify Item", value=st.session_state.to_do_list[idx]["Item"])
+    description = st.sidebar.text_area("Description", value=st.session_state.to_do_list[idx]["Description"])
+    if st.sidebar.button("Save"):
+        st.session_state.to_do_list[idx] = {"Item": item, "Description": description}
+        st.experimental_rerun()
 
+def delete_item(idx):
+    if st.sidebar.button("Delete"):
+        del st.session_state.to_do_list[idx]
+        st.experimental_rerun()
+
+# Sidebar for adding items and displaying DataFrame
+st.sidebar.header("To-Do List")
 add_item()
-display_items()
+to_do_df = pd.DataFrame(st.session_state.to_do_list)
+if not to_do_df.empty:
+    st.sidebar.dataframe(to_do_df)
+    selected_idx = st.sidebar.selectbox("Select an item to modify or delete", to_do_df.index)
+    modify_item(selected_idx)
+    delete_item(selected_idx)
 
-# Function to select an item for modification or deletion
-selected_item = st.radio('Select an item to modify or delete:', st.session_state.todo_list, key='modify_delete')
-if selected_item:
-    if st.button('Modify'):
-        new_value = st.text_input('Enter the new value:', value=selected_item)
-        if st.button('Update Item'):
-            item_index = st.session_state.todo_list.index(selected_item)
-            st.session_state.todo_list[item_index] = new_value
-           
-    if st.button('Delete'):
-        st.session_state.todo_list.remove(selected_item)
-       
+# Main window for displaying the list in markdown
+st.title("My To-Do List")
+if not to_do_df.empty:
+    for i, row in to_do_df.iterrows():
+        st.markdown(f"- **{row['Item']}**: {row['Description']}")
+else:
+    st.write("No items in the list.")
