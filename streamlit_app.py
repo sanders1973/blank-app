@@ -58,7 +58,7 @@ if not current_list_df.empty:
     )
     modify_item(selected_item)
     delete_item(selected_item)
-    st.sidebar.dataframe(current_list_df)
+  
 
 # Main window for displaying the selected list in markdown
 st.title(f"My To-Do List: {st.session_state.current_list}")
