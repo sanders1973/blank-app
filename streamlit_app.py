@@ -67,8 +67,8 @@ st.title(f"My To-Do List: {st.session_state.current_list}")
 if not current_list_df.empty:
     for i, row in current_list_df.iterrows():
         description_lines = row['Description'].split('\n')
-        st.markdown(f"- **{row['Item']}**:")
+        st.markdown(f"- **{row['Item']}**")
         for line in description_lines:
-            st.markdown(f" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  {line}")
+            st.markdown(f" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   - {line}")
 else:
     st.write("No items in the list.")
