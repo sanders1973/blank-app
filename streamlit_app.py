@@ -27,7 +27,7 @@ def modify_item(selected_item):
     if selected_item:
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         item = st.sidebar.text_input("Modify Item", value=selected_item["Item"], key='modify_item')
-        description = st.sidebar.text_input("Description", value=selected_item["Description"], key='modify_description')
+        description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description')
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
             st.rerun()
@@ -49,7 +49,7 @@ with st.sidebar.expander("Select a List", expanded=True):
 
 st.sidebar.header(f"To-Do List: {st.session_state.current_list}")
 st.session_state.item = st.sidebar.text_input("Add Item", value=st.session_state.item)
-st.session_state.description = st.sidebar.text_area("Description", value=st.session_state.description)
+#st.session_state.description = st.sidebar.text_area("Description", value=st.session_state.description)
 add_item()
 current_list_df = pd.DataFrame(st.session_state.lists[st.session_state.current_list])
 if not current_list_df.empty:
