@@ -14,6 +14,10 @@ st.session_state.description = ''
 def select_list(list_name):
     st.session_state.current_list = list_name
 
+def clear_text():
+     st.session_state.description = ""
+
+
 def add_item():
     if st.sidebar.button("Add"):
         st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
@@ -26,7 +30,7 @@ def modify_item(selected_item):
     if selected_item:
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         item = st.sidebar.text_input("Modify Item", value=selected_item["Item"], key='modify_item')
-        description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description')
+        description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description',on_change=clear_text)
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
             st.rerun()
