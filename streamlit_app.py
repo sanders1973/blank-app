@@ -28,24 +28,22 @@ def delete_item(selected_item):
             del st.session_state.to_do_list[idx]
             st.rerun()
 
-# Sidebar for adding items and displaying DataFrame
+# Sidebar for adding items and selecting items to modify or delete
 st.sidebar.header("To-Do List")
 add_item()
-to_do_df = pd.DataFrame(st.session_state.to_do_list)
-if not to_do_df.empty:
+if st.session_state.to_do_list:
     selected_item = st.sidebar.radio(
         "Select an item to modify or delete",
-        to_do_df.to_dict('records'),
+        st.session_state.to_do_list,
         format_func=lambda x: f"{x['Item']} - {x['Description']}"
     )
     modify_item(selected_item)
     delete_item(selected_item)
-    st.sidebar.dataframe(to_do_df)
 
 # Main window for displaying the list in markdown
 st.title("My To-Do List")
-if not to_do_df.empty:
-    for i, row in to_do_df.iterrows():
-        st.markdown(f"- **{row['Item']}**: {row['Description']}")
+if st.session_state.to_do_list:
+    for item in st.session_state.to_do_list:
+        st.markdown(f"- **{item['Item']}**: {item['Description']}")
 else:
     st.write("No items in the list.")
