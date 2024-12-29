@@ -10,19 +10,19 @@ def add_item():
     description = st.sidebar.text_area("Description")
     if st.sidebar.button("Add"):
         st.session_state.to_do_list.append({"Item": item, "Description": description})
-        st.experimental_rerun()
+        st.rerun()
 
 def modify_item(idx):
     item = st.sidebar.text_input("Modify Item", value=st.session_state.to_do_list[idx]["Item"])
     description = st.sidebar.text_area("Description", value=st.session_state.to_do_list[idx]["Description"])
     if st.sidebar.button("Save"):
         st.session_state.to_do_list[idx] = {"Item": item, "Description": description}
-        st.experimental_rerun()
+        st.rerun()
 
 def delete_item(idx):
     if st.sidebar.button("Delete"):
         del st.session_state.to_do_list[idx]
-        st.experimental_rerun()
+        st.rerun()
 
 # Sidebar for adding items and displaying DataFrame
 st.sidebar.header("To-Do List")
