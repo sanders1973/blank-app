@@ -15,6 +15,8 @@ def add_item():
     description = st.sidebar.text_area("Description")
     if st.sidebar.button("Add"):
         st.session_state.lists[st.session_state.current_list].append({"Item": item, "Description": description})
+        item = ""
+        description = ""
         st.rerun()
 
 def modify_item(selected_item):
