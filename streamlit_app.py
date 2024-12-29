@@ -18,8 +18,8 @@ def add_item():
     if st.sidebar.button("Add"):
         st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
         
-        st.session_state.description = ''
-        st.session_state.item = ''
+        st.session_state.description = 'zeee'
+        st.session_state.item = 'beeeee'
         st.rerun()
 
 def modify_item(selected_item):
