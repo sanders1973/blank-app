@@ -16,7 +16,7 @@ def select_list(list_name):
 
 def clear_text():
      st.session_state.description = ""
-      st.rerun()
+     st.rerun()
 
 
 def add_item():
