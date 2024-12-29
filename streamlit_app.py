@@ -6,24 +6,26 @@ if 'lists' not in st.session_state:
     st.session_state.lists = {f"List {i+1}": [] for i in range(8)}
 if 'current_list' not in st.session_state:
     st.session_state.current_list = 'List 1'
+if 'item' not in st.session_state:
+    st.session_state.item = ''
+if 'description' not in st.session_state:
+    st.session_state.description = ''
 
 def select_list(list_name):
     st.session_state.current_list = list_name
 
 def add_item():
-    item = st.sidebar.text_input("Add Item")
-    description = st.sidebar.text_area("Description")
     if st.sidebar.button("Add"):
-        st.session_state.lists[st.session_state.current_list].append({"Item": item, "Description": description})
-        st.sidebar.text_area("Description") == ""
-        st.sidebar.text_input("Add Item") == ""
+        st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
+        st.session_state.item = ''
+        st.session_state.description = ''
         st.rerun()
 
 def modify_item(selected_item):
     if selected_item:
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
-        item = st.sidebar.text_input("Modify Item", value=selected_item["Item"])
-        description = st.sidebar.text_area("Description", value=selected_item["Description"])
+        item = st.sidebar.text_input("Modify Item", value=selected_item["Item"], key='modify_item')
+        description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description')
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
             st.rerun()
@@ -44,6 +46,8 @@ with st.sidebar.expander("Select a List", expanded=True):
     select_list(selected_list)
 
 st.sidebar.header(f"To-Do List: {st.session_state.current_list}")
+st.session_state.item = st.sidebar.text_input("Add Item", value=st.session_state.item)
+st.session_state.description = st.sidebar.text_area("Description", value=st.session_state.description)
 add_item()
 current_list_df = pd.DataFrame(st.session_state.lists[st.session_state.current_list])
 if not current_list_df.empty:
