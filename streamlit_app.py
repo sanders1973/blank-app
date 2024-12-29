@@ -27,7 +27,7 @@ def modify_item(selected_item):
     if selected_item:
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         item = st.sidebar.text_input("Modify Item", value=selected_item["Item"], key='modify_item')
-        description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description')
+        description = st.sidebar.text_input("Description", value=selected_item["Description"], key='modify_description')
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
             st.rerun()
