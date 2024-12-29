@@ -8,8 +8,8 @@ if 'current_list' not in st.session_state:
     st.session_state.current_list = 'List 1'
 if 'item' not in st.session_state:
     st.session_state.item = ''
-# if 'description' not in st.session_state:
-st.session_state.description = ''
+if 'description' not in st.session_state:
+    st.session_state.description = ''
 
 def select_list(list_name):
     st.session_state.current_list = list_name
