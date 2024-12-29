@@ -33,7 +33,8 @@ if not to_do_df.empty:
     selected_idx = st.sidebar.selectbox("Select an item to modify or delete", to_do_df.index)
     modify_item(selected_idx)
     delete_item(selected_idx)
-
+    
+    
 # Main window for displaying the list in markdown
 st.title("My To-Do List")
 if not to_do_df.empty:
