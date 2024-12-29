@@ -14,17 +14,13 @@ st.session_state.description = ''
 def select_list(list_name):
     st.session_state.current_list = list_name
 
-def clear_text():
-     st.session_state.description = ""
-     st.rerun()
-
 
 def add_item():
     if st.sidebar.button("Add"):
         st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
         
         st.session_state.description = 'zeee'
-      # st.session_state.item = 'beeeee'
+        st.session_state.item = 'beeeee'
         st.rerun()
 
 def modify_item(selected_item):
@@ -53,7 +49,7 @@ with st.sidebar.expander("Select a List", expanded=True):
 
 st.sidebar.header(f"To-Do List: {st.session_state.current_list}")
 st.session_state.item = st.sidebar.text_input("Add Item", value=st.session_state.item)
-st.session_state.description = st.sidebar.text_area("Description", value=st.session_state.description,on_change=clear_text)
+st.session_state.description = st.sidebar.text_area("Description", value=st.session_state.description)
 add_item()
 current_list_df = pd.DataFrame(st.session_state.lists[st.session_state.current_list])
 if not current_list_df.empty:
