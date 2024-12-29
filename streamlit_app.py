@@ -34,10 +34,12 @@ def delete_item(selected_item):
             st.rerun()
 
 # Sidebar for list selection and item management
-st.sidebar.header("Select a List")
-for list_name in st.session_state.lists.keys():
-    if st.sidebar.button(list_name):
-        select_list(list_name)
+with st.sidebar.expander("Select a List", expanded=True):
+    selected_list = st.radio(
+        "Choose your list:",
+        list(st.session_state.lists.keys())
+    )
+    select_list(selected_list)
 
 st.sidebar.header(f"To-Do List: {st.session_state.current_list}")
 add_item()
