@@ -69,6 +69,7 @@ if not current_list_df.empty:
         description_lines = row['Description'].split('\n')
         st.markdown(f"- **{row['Item']}**:")
         for line in description_lines:
-            st.markdown(f" &nbsp &nbsp &nbsp &nbsp &nbsp  {line}")
+            left_padding = ('{: >5}'.format(string))
+            st.markdown(f" \"{left_padding}\"  {line}")
 else:
     st.write("No items in the list.")
