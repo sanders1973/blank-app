@@ -142,7 +142,7 @@ with tabs[0]:
     st.session_state.github_info["username"] = st.text_input("GitHub Username", value=st.session_state.github_info["username"])
     st.session_state.github_info["repo"] = st.text_input("Repository Name", value=st.session_state.github_info["repo"])
     if st.button("Save GitHub Info"):
-        set("github_info", str(st.session_state.github_info))
+       # set("github_info", str(st.session_state.github_info))
         save_github_info()
 
 for tab, list_name in zip(tabs[1:], st.session_state.lists.keys()):
