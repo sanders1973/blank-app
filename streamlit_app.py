@@ -79,6 +79,31 @@ def write_to_github():
         except:
             repo.create_file(file_path, "Create list", content)
 
+def save_github_info():
+    g = get_github_client()
+    repo = g.get_user().get_repo(st.session_state.github_info["repo"])
+    file_path = "github_info.txt"
+    content = str(st.session_state.github_info)
+    try:
+        file = repo.get_contents(file_path)
+        repo.update_file(file_path, "Update GitHub info", content, file.sha)
+    except:
+        repo.create_file(file_path, "Create GitHub info", content)
+
+def load_github_info():
+    g = Github(os.getenv('GITHUB_TOKEN'))
+    repo = g.get_user().get_repo(st.session_state.github_info["repo"])
+    file_path = "github_info.txt"
+    try:
+        file_content = repo.get_contents(file_path)
+        content = file_content.decoded_content.decode('utf-8')
+        st.session_state.github_info = eval(content)
+    except:
+        pass
+
+# Load GitHub info on start
+load_github_info()
+
 # Sidebar for list selection and item management
 with st.sidebar.expander("Select a List", expanded=True):
     selected_list = st.radio(
@@ -113,6 +138,8 @@ with tabs[0]:
     st.session_state.github_info["token"] = st.text_input("GitHub Token", value=st.session_state.github_info["token"], type="password")
     st.session_state.github_info["username"] = st.text_input("GitHub Username", value=st.session_state.github_info["username"])
     st.session_state.github_info["repo"] = st.text_input("Repository Name", value=st.session_state.github_info["repo"])
+    if st.button("Save GitHub Info"):
+        save_github_info()
     if st.button("Load Lists from GitHub"):
         read_from_github()
 
