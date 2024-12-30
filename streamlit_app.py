@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+from github import Github
+import os
 
 # Initialize session state
 if 'lists' not in st.session_state:
@@ -10,6 +12,8 @@ if 'item' not in st.session_state:
     st.session_state.item = ''
 if 'description' not in st.session_state:
     st.session_state.description = ''
+if 'github_info' not in st.session_state:
+    st.session_state.github_info = {"token": "", "username": "", "repo": ""}
 
 def select_list(list_name):
     st.session_state.current_list = list_name
@@ -19,6 +23,7 @@ def add_item():
         st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
         st.session_state.item = ''
         st.session_state.description = ''
+        write_to_github()
         st.experimental_rerun()
 
 def modify_item(selected_item):
@@ -28,6 +33,7 @@ def modify_item(selected_item):
         description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description')
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
+            write_to_github()
             st.experimental_rerun()
 
 def delete_item(selected_item):
@@ -35,6 +41,7 @@ def delete_item(selected_item):
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         if st.sidebar.button("Delete"):
             del st.session_state.lists[st.session_state.current_list][idx]
+            write_to_github()
             st.experimental_rerun()
 
 def move_item(selected_item, target_list):
@@ -42,7 +49,35 @@ def move_item(selected_item, target_list):
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         item = st.session_state.lists[st.session_state.current_list].pop(idx)
         st.session_state.lists[target_list].append(item)
+        write_to_github()
         st.experimental_rerun()
+
+def get_github_client():
+    return Github(st.session_state.github_info["token"])
+
+def read_from_github():
+    g = get_github_client()
+    repo = g.get_user().get_repo(st.session_state.github_info["repo"])
+    for i in range(8):
+        file_path = f"list_{i+1}.txt"
+        try:
+            file_content = repo.get_contents(file_path)
+            content = file_content.decoded_content.decode('utf-8')
+            st.session_state.lists[f"List {i+1}"] = [eval(line) for line in content.splitlines()]
+        except:
+            st.session_state.lists[f"List {i+1}"] = []
+
+def write_to_github():
+    g = get_github_client()
+    repo = g.get_user().get_repo(st.session_state.github_info["repo"])
+    for i in range(8):
+        file_path = f"list_{i+1}.txt"
+        content = "\n".join([str(item) for item in st.session_state.lists[f"List {i+1}"]])
+        try:
+            file = repo.get_contents(file_path)
+            repo.update_file(file_path, "Update list", content, file.sha)
+        except:
+            repo.create_file(file_path, "Create list", content)
 
 # Sidebar for list selection and item management
 with st.sidebar.expander("Select a List", expanded=True):
@@ -70,10 +105,18 @@ if not current_list_df.empty:
         move_item(selected_item, target_list)
     st.sidebar.dataframe(current_list_df)
 
-# Main window for displaying the lists in tabs
+# Main window for displaying the lists in tabs and GitHub info
 st.title("My To-Do Lists")
-tabs = st.tabs(list(st.session_state.lists.keys()))
-for tab, list_name in zip(tabs, st.session_state.lists.keys()):
+tabs = st.tabs(["Lists"] + list(st.session_state.lists.keys()))
+with tabs[0]:
+    st.header("GitHub Information")
+    st.session_state.github_info["token"] = st.text_input("GitHub Token", value=st.session_state.github_info["token"], type="password")
+    st.session_state.github_info["username"] = st.text_input("GitHub Username", value=st.session_state.github_info["username"])
+    st.session_state.github_info["repo"] = st.text_input("Repository Name", value=st.session_state.github_info["repo"])
+    if st.button("Load Lists from GitHub"):
+        read_from_github()
+
+for tab, list_name in zip(tabs[1:], st.session_state.lists.keys()):
     with tab:
         current_list_df = pd.DataFrame(st.session_state.lists[list_name])
         if not current_list_df.empty:
