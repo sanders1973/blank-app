@@ -105,8 +105,8 @@ if st.session_state.github_info_loaded == False:
     load_github_info()
     st.success("here", icon="✅")
 
-if st.session_state.github_info_loaded:
-    read_from_github()
+#if st.session_state.github_info_loaded:
+   # read_from_github()
 
 # Sidebar for list selection and item management
 st.sidebar.header("GitHub Actions")
