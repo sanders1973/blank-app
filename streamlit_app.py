@@ -14,14 +14,12 @@ if 'description' not in st.session_state:
 def select_list(list_name):
     st.session_state.current_list = list_name
 
-
 def add_item():
     if st.sidebar.button("Add"):
         st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
-        
-        st.session_state.description = ''
         st.session_state.item = ''
-        st.rerun()
+        st.session_state.description = ''
+        st.experimental_rerun()
 
 def modify_item(selected_item):
     if selected_item:
@@ -30,14 +28,21 @@ def modify_item(selected_item):
         description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description')
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
-            st.rerun()
+            st.experimental_rerun()
 
 def delete_item(selected_item):
     if selected_item:
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         if st.sidebar.button("Delete"):
             del st.session_state.lists[st.session_state.current_list][idx]
-            st.rerun()
+            st.experimental_rerun()
+
+def move_item(selected_item, target_list):
+    if selected_item:
+        idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
+        item = st.session_state.lists[st.session_state.current_list].pop(idx)
+        st.session_state.lists[target_list].append(item)
+        st.experimental_rerun()
 
 # Sidebar for list selection and item management
 with st.sidebar.expander("Select a List", expanded=True):
@@ -49,26 +54,29 @@ with st.sidebar.expander("Select a List", expanded=True):
 
 st.sidebar.header(f"To-Do List: {st.session_state.current_list}")
 st.session_state.item = st.sidebar.text_input("Add Item", value=st.session_state.item)
-#st.session_state.description = st.sidebar.text_area("Description", value=st.session_state.description)
+st.session_state.description = st.sidebar.text_area("Description", value=st.session_state.description)
 add_item()
 current_list_df = pd.DataFrame(st.session_state.lists[st.session_state.current_list])
 if not current_list_df.empty:
     selected_item = st.sidebar.radio(
-        "Select an item to modify or delete",
+        "Select an item to modify, delete, or move",
         current_list_df.to_dict('records'),
         format_func=lambda x: f"{x['Item']} - {x['Description']}"
     )
     modify_item(selected_item)
     delete_item(selected_item)
-  
+    target_list = st.sidebar.selectbox("Move to:", [list_name for list_name in st.session_state.lists.keys() if list_name != st.session_state.current_list])
+    if st.sidebar.button("Move"):
+        move_item(selected_item, target_list)
+    st.sidebar.dataframe(current_list_df)
 
 # Main window for displaying the selected list in markdown
 st.title(f"My To-Do List: {st.session_state.current_list}")
 if not current_list_df.empty:
     for i, row in current_list_df.iterrows():
         description_lines = row['Description'].split('\n')
-        st.markdown(f"- **{row['Item']}**")
+        st.markdown(f"- **{row['Item']}**:")
         for line in description_lines:
-            st.markdown(f" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   {line}")
+            st.markdown(f"    - {line}")
 else:
     st.write("No items in the list.")
