@@ -28,6 +28,11 @@ def add_item():
         st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
         st.session_state.item = ''
         st.session_state.description = ''
+        #write_to_github()
+        st.rerun()
+
+def SaveLists():
+    if st.sidebar.button("Save Lists"):
         write_to_github()
         st.rerun()
 
@@ -38,7 +43,7 @@ def modify_item(selected_item):
         description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description')
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
-            write_to_github()
+           # write_to_github()
             st.rerun()
 
 def delete_item(selected_item):
@@ -46,7 +51,7 @@ def delete_item(selected_item):
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         if st.sidebar.button("Delete"):
             del st.session_state.lists[st.session_state.current_list][idx]
-            write_to_github()
+           # write_to_github()
             st.rerun()
 
 def move_item(selected_item, target_list):
@@ -54,7 +59,7 @@ def move_item(selected_item, target_list):
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         item = st.session_state.lists[st.session_state.current_list].pop(idx)
         st.session_state.lists[target_list].append(item)
-        write_to_github()
+       # write_to_github()
         st.rerun()
 
 def get_github_client():
@@ -108,6 +113,7 @@ if st.session_state.github_info_loaded:
     read_from_github()
 
 # Sidebar for list selection and item management
+SaveLists()
 with st.sidebar.expander("Select a List", expanded=True):
     selected_list = st.radio(
         "Choose your list:",
