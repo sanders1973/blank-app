@@ -27,7 +27,7 @@ def add_item():
         st.session_state.item = ''
         st.session_state.description = ''
         write_to_github()
-        st.experimental_rerun()
+        st.rerun()
 
 def modify_item(selected_item):
     if selected_item:
@@ -37,7 +37,7 @@ def modify_item(selected_item):
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
             write_to_github()
-            st.experimental_rerun()
+            st.rerun()
 
 def delete_item(selected_item):
     if selected_item:
@@ -45,7 +45,7 @@ def delete_item(selected_item):
         if st.sidebar.button("Delete"):
             del st.session_state.lists[st.session_state.current_list][idx]
             write_to_github()
-            st.experimental_rerun()
+            st.rerun()
 
 def move_item(selected_item, target_list):
     if selected_item:
@@ -53,7 +53,7 @@ def move_item(selected_item, target_list):
         item = st.session_state.lists[st.session_state.current_list].pop(idx)
         st.session_state.lists[target_list].append(item)
         write_to_github()
-        st.experimental_rerun()
+        st.rerun()
 
 def get_github_client():
     return Github(st.session_state.github_info["token"])
