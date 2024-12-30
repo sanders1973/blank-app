@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from github import Github
 from streamlit_local_storage import LocalStorage
-import os
 
 localS = LocalStorage()
 
@@ -24,17 +23,10 @@ def select_list(list_name):
     st.session_state.current_list = list_name
 
 def add_item():
-    if st.sidebar.button("Add"):
-        st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
-        st.session_state.item = ''
-        st.session_state.description = ''
-        #write_to_github()
-        st.rerun()
-
-def SaveLists():
-    if st.sidebar.button("Save Lists"):
-        write_to_github()
-        st.rerun()
+    st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
+    st.session_state.item = ''
+    st.session_state.description = ''
+    st.rerun()
 
 def modify_item(selected_item):
     if selected_item:
@@ -43,7 +35,6 @@ def modify_item(selected_item):
         description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description')
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
-           # write_to_github()
             st.rerun()
 
 def delete_item(selected_item):
@@ -51,7 +42,6 @@ def delete_item(selected_item):
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         if st.sidebar.button("Delete"):
             del st.session_state.lists[st.session_state.current_list][idx]
-           # write_to_github()
             st.rerun()
 
 def move_item(selected_item, target_list):
@@ -59,7 +49,6 @@ def move_item(selected_item, target_list):
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         item = st.session_state.lists[st.session_state.current_list].pop(idx)
         st.session_state.lists[target_list].append(item)
-       # write_to_github()
         st.rerun()
 
 def get_github_client():
@@ -94,7 +83,6 @@ def save_github_info():
     repo = g.get_user().get_repo(st.session_state.github_info["repo"])
     file_path = "github_info.txt"
     content = str(st.session_state.github_info)
-    localS.setItem("github_info", content)
     try:
         file = repo.get_contents(file_path)
         repo.update_file(file_path, "Update GitHub info", content, file.sha)
@@ -102,18 +90,26 @@ def save_github_info():
         repo.create_file(file_path, "Create GitHub info", content)
 
 def load_github_info():
-    github_info = localS.getItem("github_info")
-    if github_info:
-        st.session_state.github_info = eval(github_info)
-        st.session_state.github_info_loaded = True
+    if is_supported():
+        github_info = get("github_info")
+        if github_info:
+            st.session_state.github_info = eval(github_info)
+            st.session_state.github_info_loaded = True
 
 # Load GitHub info from browser storage on start
 load_github_info()
-if st.session_state.github_info_loaded:
-    read_from_github()
+github_info = localS.getItem("github_info")
+if github_info:
+        st.session_state.github_info = eval(github_info)
+        st.session_state.github_info_loaded = True
 
 # Sidebar for list selection and item management
-SaveLists()
+st.sidebar.header("GitHub Actions")
+if st.sidebar.button("Load Lists"):
+    read_from_github()
+if st.sidebar.button("Save Lists"):
+    write_to_github()
+
 with st.sidebar.expander("Select a List", expanded=True):
     selected_list = st.radio(
         "Choose your list:",
@@ -124,7 +120,8 @@ with st.sidebar.expander("Select a List", expanded=True):
 st.sidebar.header(f"To-Do List: {st.session_state.current_list}")
 st.session_state.item = st.sidebar.text_input("Add Item", value=st.session_state.item)
 st.session_state.description = st.sidebar.text_area("Description", value=st.session_state.description)
-add_item()
+if st.sidebar.button("Add"):
+    add_item()
 current_list_df = pd.DataFrame(st.session_state.lists[st.session_state.current_list])
 if not current_list_df.empty:
     selected_item = st.sidebar.radio(
@@ -148,8 +145,9 @@ with tabs[0]:
     st.session_state.github_info["username"] = st.text_input("GitHub Username", value=st.session_state.github_info["username"])
     st.session_state.github_info["repo"] = st.text_input("Repository Name", value=st.session_state.github_info["repo"])
     if st.button("Save GitHub Info"):
-       # set("github_info", str(st.session_state.github_info))
+        set("github_info", str(st.session_state.github_info))
         save_github_info()
+        localS.setItem("github_info", content)
 
 for tab, list_name in zip(tabs[1:], st.session_state.lists.keys()):
     with tab:
