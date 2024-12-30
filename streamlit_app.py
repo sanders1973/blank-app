@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from github import Github
+from streamlit_browser_session_storage import get, set, is_supported
 import os
 
 # Initialize session state
@@ -14,6 +15,8 @@ if 'description' not in st.session_state:
     st.session_state.description = ''
 if 'github_info' not in st.session_state:
     st.session_state.github_info = {"token": "", "username": "", "repo": ""}
+if 'github_info_loaded' not in st.session_state:
+    st.session_state.github_info_loaded = False
 
 def select_list(list_name):
     st.session_state.current_list = list_name
@@ -24,7 +27,7 @@ def add_item():
         st.session_state.item = ''
         st.session_state.description = ''
         write_to_github()
-        st.rerun()
+        st.experimental_rerun()
 
 def modify_item(selected_item):
     if selected_item:
@@ -34,7 +37,7 @@ def modify_item(selected_item):
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
             write_to_github()
-            st.rerun()
+            st.experimental_rerun()
 
 def delete_item(selected_item):
     if selected_item:
@@ -42,7 +45,7 @@ def delete_item(selected_item):
         if st.sidebar.button("Delete"):
             del st.session_state.lists[st.session_state.current_list][idx]
             write_to_github()
-            st.rerun()
+            st.experimental_rerun()
 
 def move_item(selected_item, target_list):
     if selected_item:
@@ -50,7 +53,7 @@ def move_item(selected_item, target_list):
         item = st.session_state.lists[st.session_state.current_list].pop(idx)
         st.session_state.lists[target_list].append(item)
         write_to_github()
-        st.rerun()
+        st.experimental_rerun()
 
 def get_github_client():
     return Github(st.session_state.github_info["token"])
@@ -91,15 +94,16 @@ def save_github_info():
         repo.create_file(file_path, "Create GitHub info", content)
 
 def load_github_info():
-    g = Github(st.session_state.github_info["token"])
-    repo = g.get_user().get_repo(st.session_state.github_info["repo"])
-    file_path = "github_info.txt"
-    try:
-        file_content = repo.get_contents(file_path)
-        content = file_content.decoded_content.decode('utf-8')
-        st.session_state.github_info = eval(content)
-    except:
-        pass
+    if is_supported():
+        github_info = get("github_info")
+        if github_info:
+            st.session_state.github_info = eval(github_info)
+            st.session_state.github_info_loaded = True
+
+# Load GitHub info from browser storage on start
+load_github_info()
+if st.session_state.github_info_loaded:
+    read_from_github()
 
 # Sidebar for list selection and item management
 with st.sidebar.expander("Select a List", expanded=True):
@@ -127,12 +131,6 @@ if not current_list_df.empty:
         move_item(selected_item, target_list)
     st.sidebar.dataframe(current_list_df)
 
-# Check if GitHub information exists
-if not all(st.session_state.github_info.values()):
-    st.warning("Please enter your GitHub information in the 'GitHub Information' tab to load or save your lists.")
-else:
-    load_github_info()
-
 # Main window for displaying the lists in tabs and GitHub info
 st.title("My To-Do Lists")
 tabs = st.tabs(["Lists"] + list(st.session_state.lists.keys()))
@@ -142,9 +140,8 @@ with tabs[0]:
     st.session_state.github_info["username"] = st.text_input("GitHub Username", value=st.session_state.github_info["username"])
     st.session_state.github_info["repo"] = st.text_input("Repository Name", value=st.session_state.github_info["repo"])
     if st.button("Save GitHub Info"):
+        set("github_info", str(st.session_state.github_info))
         save_github_info()
-    if st.button("Load Lists from GitHub"):
-        read_from_github()
 
 for tab, list_name in zip(tabs[1:], st.session_state.lists.keys()):
     with tab:
@@ -158,5 +155,3 @@ for tab, list_name in zip(tabs[1:], st.session_state.lists.keys()):
                     st.markdown(f"    - {line}")
         else:
             st.write("No items in the list.")
-
-
