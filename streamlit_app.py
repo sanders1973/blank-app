@@ -19,7 +19,7 @@ def add_item():
         st.session_state.lists[st.session_state.current_list].append({"Item": st.session_state.item, "Description": st.session_state.description})
         st.session_state.item = ''
         st.session_state.description = ''
-        st.rerun()
+        st.experimental_rerun()
 
 def modify_item(selected_item):
     if selected_item:
@@ -28,21 +28,21 @@ def modify_item(selected_item):
         description = st.sidebar.text_area("Description", value=selected_item["Description"], key='modify_description')
         if st.sidebar.button("Save"):
             st.session_state.lists[st.session_state.current_list][idx] = {"Item": item, "Description": description}
-            st.rerun()
+            st.experimental_rerun()
 
 def delete_item(selected_item):
     if selected_item:
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         if st.sidebar.button("Delete"):
             del st.session_state.lists[st.session_state.current_list][idx]
-            st.rerun()
+            st.experimental_rerun()
 
 def move_item(selected_item, target_list):
     if selected_item:
         idx = st.session_state.lists[st.session_state.current_list].index(selected_item)
         item = st.session_state.lists[st.session_state.current_list].pop(idx)
         st.session_state.lists[target_list].append(item)
-        st.rerun()
+        st.experimental_rerun()
 
 # Sidebar for list selection and item management
 with st.sidebar.expander("Select a List", expanded=True):
@@ -70,13 +70,18 @@ if not current_list_df.empty:
         move_item(selected_item, target_list)
     st.sidebar.dataframe(current_list_df)
 
-# Main window for displaying the selected list in markdown
-st.title(f"My To-Do List: {st.session_state.current_list}")
-if not current_list_df.empty:
-    for i, row in current_list_df.iterrows():
-        description_lines = row['Description'].split('\n')
-        st.markdown(f"- **{row['Item']}**:")
-        for line in description_lines:
-            st.markdown(f"    - {line}")
-else:
-    st.write("No items in the list.")
+# Main window for displaying the lists in tabs
+st.title("My To-Do Lists")
+tabs = st.tabs(list(st.session_state.lists.keys()))
+for tab, list_name in zip(tabs, st.session_state.lists.keys()):
+    with tab:
+        current_list_df = pd.DataFrame(st.session_state.lists[list_name])
+        if not current_list_df.empty:
+            st.header(f"{list_name}")
+            for i, row in current_list_df.iterrows():
+                description_lines = row['Description'].split('\n')
+                st.markdown(f"- **{row['Item']}**:")
+                for line in description_lines:
+                    st.markdown(f"    - {line}")
+        else:
+            st.write("No items in the list.")
