@@ -4,6 +4,8 @@ from github import Github
 from streamlit_local_storage import LocalStorage
 import os
 
+localS = LocalStorage()
+
 # Initialize session state
 if 'lists' not in st.session_state:
     st.session_state.lists = {f"List {i+1}": [] for i in range(8)}
@@ -87,6 +89,7 @@ def save_github_info():
     repo = g.get_user().get_repo(st.session_state.github_info["repo"])
     file_path = "github_info.txt"
     content = str(st.session_state.github_info)
+    localS.setItem("github_info", content)
     try:
         file = repo.get_contents(file_path)
         repo.update_file(file_path, "Update GitHub info", content, file.sha)
@@ -94,11 +97,10 @@ def save_github_info():
         repo.create_file(file_path, "Create GitHub info", content)
 
 def load_github_info():
-    if is_supported():
-        github_info = get("github_info")
-        if github_info:
-            st.session_state.github_info = eval(github_info)
-            st.session_state.github_info_loaded = True
+    github_info = localS.getItem("github_info")
+    if github_info:
+        st.session_state.github_info = eval(github_info)
+        st.session_state.github_info_loaded = True
 
 # Load GitHub info from browser storage on start
 load_github_info()
