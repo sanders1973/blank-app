@@ -127,6 +127,12 @@ if not current_list_df.empty:
         move_item(selected_item, target_list)
     st.sidebar.dataframe(current_list_df)
 
+# Check if GitHub information exists
+if not all(st.session_state.github_info.values()):
+    st.warning("Please enter your GitHub information in the 'GitHub Information' tab to load or save your lists.")
+else:
+    load_github_info()
+
 # Main window for displaying the lists in tabs and GitHub info
 st.title("My To-Do Lists")
 tabs = st.tabs(["Lists"] + list(st.session_state.lists.keys()))
@@ -153,8 +159,4 @@ for tab, list_name in zip(tabs[1:], st.session_state.lists.keys()):
         else:
             st.write("No items in the list.")
 
-# Check if GitHub information exists
-if not all(st.session_state.github_info.values()):
-    st.warning("Please enter your GitHub information in the 'GitHub Information' tab to load or save your lists.")
-else:
-    load_github_info()
+
