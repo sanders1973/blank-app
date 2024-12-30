@@ -91,7 +91,7 @@ def save_github_info():
         repo.create_file(file_path, "Create GitHub info", content)
 
 def load_github_info():
-    g = Github(os.getenv('GITHUB_TOKEN'))
+    g = Github(st.session_state.github_info["token"])
     repo = g.get_user().get_repo(st.session_state.github_info["repo"])
     file_path = "github_info.txt"
     try:
@@ -100,9 +100,6 @@ def load_github_info():
         st.session_state.github_info = eval(content)
     except:
         pass
-
-# Load GitHub info on start
-load_github_info()
 
 # Sidebar for list selection and item management
 with st.sidebar.expander("Select a List", expanded=True):
@@ -155,3 +152,9 @@ for tab, list_name in zip(tabs[1:], st.session_state.lists.keys()):
                     st.markdown(f"    - {line}")
         else:
             st.write("No items in the list.")
+
+# Check if GitHub information exists
+if not all(st.session_state.github_info.values()):
+    st.warning("Please enter your GitHub information in the 'GitHub Information' tab to load or save your lists.")
+else:
+    load_github_info()
