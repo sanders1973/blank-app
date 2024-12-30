@@ -90,11 +90,10 @@ def save_github_info():
         repo.create_file(file_path, "Create GitHub info", content)
 
 def load_github_info():
-    if is_supported():
-        github_info = get("github_info")
-        if github_info:
-            st.session_state.github_info = eval(github_info)
-            st.session_state.github_info_loaded = True
+    github_info = get("github_info")
+    if github_info:
+        st.session_state.github_info = eval(github_info)
+        st.session_state.github_info_loaded = True
 
 # Load GitHub info from browser storage on start
 load_github_info()
