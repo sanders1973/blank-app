@@ -3,6 +3,7 @@ import pandas as pd
 from github import Github
 from streamlit_local_storage import LocalStorage
 
+
 localS = LocalStorage()
 
 # Initialize session state
@@ -83,6 +84,7 @@ def save_github_info():
     repo = g.get_user().get_repo(st.session_state.github_info["repo"])
     file_path = "github_info.txt"
     content = str(st.session_state.github_info)
+    localS.setItem("github_info", content)
     try:
         file = repo.get_contents(file_path)
         repo.update_file(file_path, "Update GitHub info", content, file.sha)
@@ -90,17 +92,16 @@ def save_github_info():
         repo.create_file(file_path, "Create GitHub info", content)
 
 def load_github_info():
-    github_info = get("github_info")
+    github_info = localS.getItem("github_info")
     if github_info:
         st.session_state.github_info = eval(github_info)
         st.session_state.github_info_loaded = True
 
+
 # Load GitHub info from browser storage on start
 load_github_info()
-github_info = localS.getItem("github_info")
-if github_info:
-        st.session_state.github_info = eval(github_info)
-        st.session_state.github_info_loaded = True
+if st.session_state.github_info_loaded:
+    read_from_github()
 
 # Sidebar for list selection and item management
 st.sidebar.header("GitHub Actions")
@@ -144,9 +145,9 @@ with tabs[0]:
     st.session_state.github_info["username"] = st.text_input("GitHub Username", value=st.session_state.github_info["username"])
     st.session_state.github_info["repo"] = st.text_input("Repository Name", value=st.session_state.github_info["repo"])
     if st.button("Save GitHub Info"):
-        set("github_info", str(st.session_state.github_info))
+       # set("github_info", str(st.session_state.github_info))
         save_github_info()
-        localS.setItem("github_info", content)
+        
 
 for tab, list_name in zip(tabs[1:], st.session_state.lists.keys()):
     with tab:
