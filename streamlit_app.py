@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from github import Github
-from streamlit_browser_session_storage import get, set, is_supported
+from streamlit_local_storage import LocalStorage
 import os
 
 # Initialize session state
