@@ -101,7 +101,10 @@ def load_github_info():
 # Load GitHub info from browser storage on start
 #if st.session_state.github_info == "":
 st.success(st.session_state.github_info, icon="✅")
-load_github_info()
+if st.session_state.github_info_loaded:
+    load_github_info()
+
+
 if st.session_state.github_info_loaded:
     read_from_github()
 
