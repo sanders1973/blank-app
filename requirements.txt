@@ -1,4 +1,4 @@
 streamlit
-streamlit_local_storage
 github
+streamlit_local_storage
 pandas
