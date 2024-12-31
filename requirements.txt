@@ -1,4 +1,5 @@
-streamlit
-github
-streamlit_local_storage
-pandas
+pandas==2.2.3
+PyGithub==2.5.0
+PyGithub==2.5.0
+streamlit==1.41.1
+streamlit_local_storage==0.0.25
